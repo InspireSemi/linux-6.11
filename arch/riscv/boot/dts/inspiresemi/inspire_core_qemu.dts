@@ -105,9 +105,9 @@
 			#interrupt-cells = <0x01>;
 		};
 
-		clint@2000000 {
+		clint@20000000 {
 			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
-			reg = <0x00 0x2000000 0x00 0x10000>;
+			reg = <0x00 0x20000000 0x00 0x10000>;
 			compatible = "sifive,clint0\0riscv,clint0";
 		};
 	};
