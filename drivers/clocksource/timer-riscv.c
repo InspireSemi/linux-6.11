@@ -204,12 +204,16 @@ static int __init riscv_timer_init_dt(struct device_node *n)
 	unsigned long hartid;
 	struct device_node *child;
 
+	pr_warn("riscv timere init device tree \r\n");
+
 	error = riscv_of_processor_hartid(n, &hartid);
 	if (error < 0) {
 		pr_warn("Invalid hartid for node [%pOF] error = [%lu]\n",
 			n, hartid);
 		return error;
 	}
+
+	pr_warn("after clocksource register \r\n");
 
 	cpuid = riscv_hartid_to_cpuid(hartid);
 	if (cpuid < 0) {

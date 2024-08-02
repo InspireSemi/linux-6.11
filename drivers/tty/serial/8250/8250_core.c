@@ -703,7 +703,9 @@ int serial8250_register_8250_port(const struct uart_8250_port *up)
 
 	mutex_lock(&serial_mutex);
 
+	pr_info("registering port");
 	uart = serial8250_find_match_or_unused(&up->port);
+	pr_info("found match");
 	if (!uart) {
 		/*
 		 * If the port is past the initial isa ports, initialize a new
@@ -776,6 +778,7 @@ int serial8250_register_8250_port(const struct uart_8250_port *up)
 			}
 		}
 
+		pr_info("setting defaults");
 		serial8250_set_defaults(uart);
 
 		/* Possibly override default I/O functions.  */
@@ -815,8 +818,9 @@ int serial8250_register_8250_port(const struct uart_8250_port *up)
 			if (serial8250_isa_config != NULL)
 				serial8250_isa_config(0, &uart->port,
 						&uart->capabilities);
-
+			pr_info("apply quirks");
 			serial8250_apply_quirks(uart);
+			pr_info("add one port");
 			ret = uart_add_one_port(&serial8250_reg,
 						&uart->port);
 			if (ret)
@@ -836,6 +840,7 @@ int serial8250_register_8250_port(const struct uart_8250_port *up)
 		if (!uart->lsr_save_mask)
 			uart->lsr_save_mask = LSR_SAVE_FLAGS;	/* Use default LSR mask */
 
+		pr_info("registering port 2");
 		/* Initialise interrupt backoff work if required */
 		if (up->overrun_backoff_time_ms > 0) {
 			uart->overrun_backoff_time_ms =
@@ -850,6 +855,7 @@ int serial8250_register_8250_port(const struct uart_8250_port *up)
 unlock:
 	mutex_unlock(&serial_mutex);
 
+	pr_info("reg port done");
 	return ret;
 
 err:

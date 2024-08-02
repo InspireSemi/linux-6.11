@@ -311,6 +311,7 @@ void free_initmem(void)
 		if (IS_ENABLED(CONFIG_64BIT))
 			set_kernel_memory(__init_begin, __init_end, set_memory_nx);
 	}
+	pr_info("mid free_initmemfor riscv\n");
 
 	free_initmem_default(POISON_FREE_INITMEM);
 }

@@ -727,6 +727,8 @@ static noinline void __ref __noreturn rest_init(void)
 	kthreadd_task = find_task_by_pid_ns(pid, &init_pid_ns);
 	rcu_read_unlock();
 
+	pr_debug("rest init after kthread \r\n");
+
 	/*
 	 * Enable might_sleep() and smp_processor_id() checks.
 	 * They cannot be enabled earlier because with CONFIG_PREEMPTION=y
@@ -1436,6 +1438,7 @@ static void mark_readonly(void)
 		 * flushed so that we don't hit false positives looking for
 		 * insecure pages which are W+X.
 		 */
+		pr_info("marking read only internal");
 		flush_module_init_free_work();
 		jump_label_init_ro();
 		mark_rodata_ro();
@@ -1444,9 +1447,9 @@ static void mark_readonly(void)
 	} else if (IS_ENABLED(CONFIG_STRICT_KERNEL_RWX)) {
 		pr_info("Kernel memory protection disabled.\n");
 	} else if (IS_ENABLED(CONFIG_ARCH_HAS_STRICT_KERNEL_RWX)) {
-		pr_warn("Kernel memory protection not selected by kernel config.\n");
+		pr_info("Kernel memory protection not selected by kernel config.\n");
 	} else {
-		pr_warn("This architecture does not have kernel memory protection.\n");
+		pr_info("This architecture does not have kernel memory protection.\n");
 	}
 }
 
@@ -1475,6 +1478,7 @@ static int __ref kernel_init(void *unused)
 	exit_boot_config();
 	free_initmem();
 	mark_readonly();
+	pr_info("done freeing and marking readonly");
 
 	/*
 	 * Kernel mappings are now finalized - update the userspace page-table
@@ -1488,6 +1492,8 @@ static int __ref kernel_init(void *unused)
 	rcu_end_inkernel_boot();
 
 	do_sysctl_args();
+
+	pr_info("ramdisk execute command");
 
 	if (ramdisk_execute_command) {
 		ret = run_init_process(ramdisk_execute_command);
@@ -1503,6 +1509,7 @@ static int __ref kernel_init(void *unused)
 	 * The Bourne shell can be used instead of init if we are
 	 * trying to recover a really broken machine.
 	 */
+	pr_info("trying run init process");
 	if (execute_command) {
 		ret = run_init_process(execute_command);
 		if (!ret)
@@ -1519,7 +1526,7 @@ static int __ref kernel_init(void *unused)
 		else
 			return 0;
 	}
-
+	pr_info("about to do try_to_run_init_process on various inits");
 	if (!try_to_run_init_process("/sbin/init") ||
 	    !try_to_run_init_process("/etc/init") ||
 	    !try_to_run_init_process("/bin/init") ||

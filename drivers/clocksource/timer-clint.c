@@ -217,6 +217,11 @@ static int __init clint_timer_init_dt(struct device_node *np)
 	clint_timer_val = base + CLINT_TIMER_VAL_OFF;
 	clint_timer_freq = riscv_timebase;
 
+	pr_warn(" ipi base %x \r\n", clint_ipi_base);
+	pr_warn(" timer cmp %x \r\n", clint_timer_cmp);
+	pr_warn(" timer val %x \r\n", clint_timer_val);
+	pr_warn(" timer freq %ld \r\n", clint_timer_freq);
+
 #ifdef CONFIG_RISCV_M_MODE
 	/*
 	 * Yes, that's an odd naming scheme.  time_val is public, but hopefully
@@ -234,6 +239,7 @@ static int __init clint_timer_init_dt(struct device_node *np)
 	}
 
 	sched_clock_register(clint_get_cycles64, 64, clint_timer_freq);
+	pr_warn("sched clock register \r\n");
 
 	rc = request_percpu_irq(clint_timer_irq, clint_timer_interrupt,
 				 "clint-timer", &clint_clock_event);
@@ -263,6 +269,7 @@ static int __init clint_timer_init_dt(struct device_node *np)
 		pr_err("%pOFP: cpuhp setup state failed [%d]\n", np, rc);
 		goto fail_free_irq;
 	}
+	pr_warn("cpu hp setup state \r\n");
 
 	return 0;
 
@@ -275,3 +282,4 @@ fail_iounmap:
 
 TIMER_OF_DECLARE(clint_timer, "riscv,clint0", clint_timer_init_dt);
 TIMER_OF_DECLARE(clint_timer1, "sifive,clint0", clint_timer_init_dt);
+
