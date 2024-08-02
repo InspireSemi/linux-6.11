@@ -24,9 +24,7 @@
 	};
 
 	chosen {
-		bootargs = "earlycon=uart,mmio,0x70010100,115200 debug console=ttyS0  rodata=off nokaslr";
-		linux,initrd-end = <0x1100 0x8e8657a>;
-		linux,initrd-start = <0x1100 0x8200000>;
+		bootargs = "console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 debug  rodata=off root=/dev/ram0";
 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
 		stdout-path = "/soc/serial@70010100";
 	};
@@ -90,21 +88,10 @@
 			compatible = "ns16550a";
 		};
 
-		plic0: plic@60000000 {
-			phandle = <0x03>;
-			riscv,ndev = <0x5f>;
-			reg = <0x00 0x60000000 0x00 0x600000>;
-			interrupts-extended = <&intc0 0x0b &intc0 0x09>;
-			interrupt-controller;
-			compatible = "sifive,plic-1.0.0\0riscv,plic0";
-			#address-cells = <0x00>;
-			#interrupt-cells = <0x01>;
-		};
-
 		clint@20000000 {
 			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
 			reg = <0x00 0x20000000 0x00 0x10000>;
-			compatible = "sifive,clint0\0riscv,clint0";
+			compatible = "sifive,clint0", "riscv,clint0";
 		};
 	};
 };
