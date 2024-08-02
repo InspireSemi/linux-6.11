@@ -2012,6 +2012,8 @@ int kernel_execve(const char *kernel_filename,
 	int fd = AT_FDCWD;
 	int retval;
 
+	pr_info("%s: 1\n", __FUNCTION__);
+
 	/* It is non-sense for kernel threads to call execve */
 	if (WARN_ON_ONCE(current->flags & PF_KTHREAD))
 		return -EINVAL;
@@ -2026,6 +2028,7 @@ int kernel_execve(const char *kernel_filename,
 		goto out_ret;
 	}
 
+	pr_info("%s: 2\n", __FUNCTION__);
 	retval = count_strings_kernel(argv);
 	if (WARN_ON_ONCE(retval == 0))
 		retval = -EINVAL;
@@ -2033,28 +2036,34 @@ int kernel_execve(const char *kernel_filename,
 		goto out_free;
 	bprm->argc = retval;
 
+	pr_info("%s: 3\n", __FUNCTION__);
 	retval = count_strings_kernel(envp);
 	if (retval < 0)
 		goto out_free;
 	bprm->envc = retval;
 
+	pr_info("%s: 4\n", __FUNCTION__);
 	retval = bprm_stack_limits(bprm);
 	if (retval < 0)
 		goto out_free;
 
+	pr_info("%s: 5\n", __FUNCTION__);
 	retval = copy_string_kernel(bprm->filename, bprm);
 	if (retval < 0)
 		goto out_free;
 	bprm->exec = bprm->p;
 
+	pr_info("%s: 6\n", __FUNCTION__);
 	retval = copy_strings_kernel(bprm->envc, envp, bprm);
 	if (retval < 0)
 		goto out_free;
 
+	pr_info("%s: 7\n", __FUNCTION__);
 	retval = copy_strings_kernel(bprm->argc, argv, bprm);
 	if (retval < 0)
 		goto out_free;
 
+	pr_info("%s: 8\n", __FUNCTION__);
 	retval = bprm_execve(bprm);
 out_free:
 	free_bprm(bprm);

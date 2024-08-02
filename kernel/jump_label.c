@@ -191,12 +191,20 @@ EXPORT_SYMBOL_GPL(static_key_slow_inc);
 
 void static_key_enable_cpuslocked(struct static_key *key)
 {
+	volatile int temp;
 	STATIC_KEY_CHECK_USE(key);
 	lockdep_assert_cpus_held();
 
 	if (atomic_read(&key->enabled) > 0) {
 		WARN_ON_ONCE(atomic_read(&key->enabled) != 1);
-		return;
+		temp = atomic_read(&key->enabled);
+		pr_info("temp: %d\n", temp);
+		if ( temp > 0) {
+			temp = atomic_read(&key->enabled);
+			pr_info("temp inside: %d\n", temp);
+			WARN_ON_ONCE(temp != 1);
+			return;
+		}
 	}
 
 	jump_label_lock();

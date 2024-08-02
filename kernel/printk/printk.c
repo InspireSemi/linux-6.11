@@ -3514,6 +3514,7 @@ void register_console(struct console *newcon)
 		}
 	}
 
+	pr_info("trying new console");
 	/* See if this console matches one we selected on the command line */
 	err = try_enable_preferred_console(newcon, true);
 
