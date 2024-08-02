@@ -80,7 +80,7 @@
 		serial@70010100 {
 			interrupts = <0x0a>;
 			interrupt-parent = <0x03>;
-			current-speed = <115200>;
+			current-speed = <3000000>;
 			reg = <0x00 0x70010100 0x00 0x100>;
 			compatible = "ns16550a";
 		};
@@ -96,9 +96,9 @@
 			#interrupt-cells = <0x01>;
 		};
 
-		clint@20000000 {
+		clint@20004000 {
 			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
-			reg = <0x00 0x20000000 0x00 0x10000>;
+			reg = <0x00 0x20004000 0x00 0x10000>;
 			compatible = "inspire,clint0";
 		};
 	};
