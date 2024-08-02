@@ -24,16 +24,15 @@
 	};
 
 	chosen {
-		bootargs = "earlycon debug console=ttyS0";
+		bootargs = "debug console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 rodata=off retain_initrd nokaslr";
 		linux,initrd-end = <0x1100 0x8e8657a>;
-		linux,initrd-start = <0x1100 0x8200000>;
+		linux,initrd-start = <0x1100 0x08200000>;
 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
-		stdout-path = "/soc/serial@70010100";
 	};
 
 	memory@110000000000 {
 		device_type = "memory";
-		reg = <0x1100 0x00 0x04 0x00>;
+		reg = <0x1100 0x00 0x0 0x40000000>;
 	};
 
 	cpus {
@@ -47,9 +46,7 @@
 			reg = <0x00>;
 			status = "okay";
 			compatible = "riscv";
-			riscv,cboz-block-size = <0x40>;
-			riscv,cbom-block-size = <0x40>;
-			riscv,isa = "rv64imafdch_zicbom_zicboz_zicsr_zifencei_zihintpause_zawrs_zfa_zca_zcd_zba_zbb_zbc_zbs_sstc_svadu";
+			riscv,isa = "rv64imafdc_zicsr_zifencei";
 			mmu-type = "riscv,sv48";
 
 			intc0: interrupt-controller {
@@ -78,7 +75,7 @@
 		ranges;
 
 		serial@70010100 {
-			interrupts = <0x0a>;
+			interrupts = <0x05>;
 			interrupt-parent = <0x03>;
 			current-speed = <3000000>;
 			clock-frequency = <48000000>;
@@ -92,7 +89,7 @@
 			reg = <0x00 0x60000000 0x00 0x600000>;
 			interrupts-extended = <&intc0 0x0b &intc0 0x09>;
 			interrupt-controller;
-			compatible = "sifive,plic-1.0.0\0riscv,plic0";
+			compatible = "riscv,plic0";
 			#address-cells = <0x00>;
 			#interrupt-cells = <0x01>;
 		};
