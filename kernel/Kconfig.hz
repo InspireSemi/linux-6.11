@@ -16,6 +16,25 @@ choice
 	 environment leading to NR_CPUS * HZ number of timer interrupts
 	 per second.
 
+	config HZ_6
+		bool "6 HZ"
+	help
+	  6 Hz For InspireSemi FPGA
+
+	config HZ_12
+		bool "12 HZ"
+	help
+	  12 Hz For InspireSemi FPGA
+
+	config HZ_25
+		bool "25 HZ"
+	help
+	  25 Hz For InspireSemi FPGA
+
+	config HZ_50
+		bool "50 HZ"
+	help
+	  50 Hz For InspireSemi FPGA
 
 	config HZ_100
 		bool "100 HZ"
@@ -50,6 +69,10 @@ endchoice
 
 config HZ
 	int
+	default 6 if HZ_6
+	default 12 if HZ_12
+	default 25 if HZ_25
+	default 50 if HZ_50
 	default 100 if HZ_100
 	default 250 if HZ_250
 	default 300 if HZ_300
