@@ -92,6 +92,8 @@ void __show_regs(struct pt_regs *regs)
 
 	pr_cont("status: " REG_FMT " badaddr: " REG_FMT " cause: " REG_FMT "\n",
 		regs->status, regs->badaddr, regs->cause);
+
+	pr_cont("mie: " REG_FMT " mip: " REG_FMT "\n", csr_read(CSR_IE), csr_read(CSR_IP));
 }
 void show_regs(struct pt_regs *regs)
 {

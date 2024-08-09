@@ -69,7 +69,7 @@
 		};
 
 		clint@20004000 {
-			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
+			interrupts-extended = <&intc0 0x05 &intc0 0x07>;
 			reg = <0x00 0x20004000 0x00 0x10000>;
 			compatible = "inspire,clint0";
 		};

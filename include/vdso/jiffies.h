@@ -6,6 +6,6 @@
 #include <vdso/time64.h>
 
 /* TICK_NSEC is the time between ticks in nsec assuming SHIFTED_HZ */
-#define TICK_NSEC ((NSEC_PER_SEC+HZ/2)/HZ)
+#define TICK_NSEC ((NSEC_PER_SEC+HZ/2)/HZ) // 1000000000
 
 #endif /* __VDSO_JIFFIES_H */
