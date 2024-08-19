@@ -204,7 +204,7 @@ static int __init riscv_timer_init_dt(struct device_node *n)
 	unsigned long hartid;
 	struct device_node *child;
 
-	pr_warn("riscv timere init device tree \r\n");
+	pr_warn("riscv timer init device tree \r\n");
 
 	error = riscv_of_processor_hartid(n, &hartid);
 	if (error < 0) {
