@@ -37,7 +37,6 @@ extern asmlinkage void ret_from_fork(void);
 
 void noinstr arch_cpu_idle(void)
 {
-	pr_warn_ratelimited("idle \r\n");
 	cpu_do_idle();
 }
 
