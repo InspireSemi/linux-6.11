@@ -11,15 +11,16 @@
 		compatible = "riscv,pmu";
 	};
 
-
-	chosen {
+ 	chosen {
 		bootargs = "debug console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 rodata=off";
+		linux,initrd-start = <0x1100 0x04000000>;
+		linux,initrd-end = <0x1100 0x04AFED43>;
 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
-	};
+        };
 
 	memory@110000000000 {
 		device_type = "memory";
-		reg = <0x1100 0x00 0x0 0x40000000>;
+		reg = <0x1100 0x00 0x0 0x80000000>;
 	};
 
 	cpus {
