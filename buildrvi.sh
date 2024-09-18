@@ -1,0 +1,1 @@
+make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- O=../linux_build DEBUG=1 -j16
