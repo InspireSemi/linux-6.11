@@ -555,19 +555,22 @@ static bool check_unaligned_access_emulated(int cpu)
 
 bool check_unaligned_access_emulated_all_cpus(void)
 {
-	int cpu;
+	// int cpu;
 
-	/*
-	 * We can only support PR_UNALIGN controls if all CPUs have misaligned
-	 * accesses emulated since tasks requesting such control can run on any
-	 * CPU.
-	 */
-	for_each_online_cpu(cpu)
-		if (!check_unaligned_access_emulated(cpu))
-			return false;
+	// /*
+	//  * We can only support PR_UNALIGN controls if all CPUs have misaligned
+	//  * accesses emulated since tasks requesting such control can run on any
+	//  * CPU.
+	//  */
+	// for_each_online_cpu(cpu)
+	// 	if (!check_unaligned_access_emulated(cpu))
+	// 	 	return false;
 
-	unaligned_ctl = true;
-	return true;
+	// unaligned_ctl = true;
+	// return true;
+
+	return false;
+
 }
 
 bool unaligned_ctl_available(void)
