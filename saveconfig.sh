@@ -1,1 +1,1 @@
-make ARCH=riscv CROSS_COMPILE=riscv64-poky-linux- O=../linux_build savedefconfig
+make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- O=../linux_build savedefconfig
