@@ -1,0 +1,72 @@
+From 6c1f98f8d6d1e13988f72dbb57278df3b9d2b580 Mon Sep 17 00:00:00 2001
+From: Teo Hall <thall@inspiresemi.com>
+Date: Thu, 29 Feb 2024 12:47:04 -0600
+Subject: [PATCH 04/21] Success with FPGA opensbi
+
+Signed-off-by: Teo Hall <thall@inspiresemi.com>
+---
+ .../boot/dts/inspiresemi/inspire_core.dts     | 20 +++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+index 05f4339f4cb0..6fcaada67eeb 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+@@ -3,8 +3,8 @@
+ / {
+ 	#address-cells = <0x02>;
+ 	#size-cells = <0x02>;
+-	compatible = "riscv-thunderbird";
+-	model = "riscv-thunderbird,fpga";
++	compatible = "inspire,thunderbird-fpga", "inspire,thunderbird";
++	model = "Inspire Semiconductor Thunderbird FPGA";
+ 
+ 	pmu {
+ 		riscv,event-to-mhpmcounters = <0x01 0x01 0x7fff9 0x02 0x02 0x7fffc 0x10019 0x10019 0x7fff8 0x1001b 0x1001b 0x7fff8 0x10021 0x10021 0x7fff8>;
+@@ -50,9 +50,9 @@ cpu@0 {
+ 			riscv,cboz-block-size = <0x40>;
+ 			riscv,cbom-block-size = <0x40>;
+ 			riscv,isa = "rv64imafdch_zicbom_zicboz_zicsr_zifencei_zihintpause_zawrs_zfa_zca_zcd_zba_zbb_zbc_zbs_sstc_svadu";
+-			mmu-type = "riscv,sv57";
++			mmu-type = "riscv,sv48";
+ 
+-			interrupt-controller {
++			intc0: interrupt-controller {
+ 				#interrupt-cells = <0x01>;
+ 				interrupt-controller;
+ 				compatible = "riscv,cpu-intc";
+@@ -80,25 +80,25 @@ soc {
+ 		serial@70010100 {
+ 			interrupts = <0x0a>;
+ 			interrupt-parent = <0x03>;
+-			clock-frequency = <0x384000>;
++			current-speed = <115200>;
+ 			reg = <0x00 0x70010100 0x00 0x100>;
+ 			compatible = "ns16550a";
+ 		};
+ 
+-		plic@60000000 {
++		plic0: plic@60000000 {
+ 			phandle = <0x03>;
+ 			riscv,ndev = <0x5f>;
+ 			reg = <0x00 0x60000000 0x00 0x600000>;
+-			interrupts-extended = <0x02 0x0b 0x02 0x09>;
++			interrupts-extended = <&intc0 0x0b &intc0 0x09>;
+ 			interrupt-controller;
+ 			compatible = "sifive,plic-1.0.0\0riscv,plic0";
+ 			#address-cells = <0x00>;
+ 			#interrupt-cells = <0x01>;
+ 		};
+ 
+-		clint@2000000 {
+-			interrupts-extended = <0x02 0x03 0x02 0x07>;
+-			reg = <0x00 0x2000000 0x00 0x10000>;
++		clint@20000000 {
++			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
++			reg = <0x00 0x20000000 0x00 0x10000>;
+ 			compatible = "inspire,clint0";
+ 		};
+ 	};
+-- 
+2.39.3
+

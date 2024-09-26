@@ -1,0 +1,29 @@
+From b34ff8c11bae3d4488c6500dbe1ebda8c48016f1 Mon Sep 17 00:00:00 2001
+From: Teo Hall <thall@inspiresemi.com>
+Date: Sat, 2 Mar 2024 00:05:09 -0600
+Subject: [PATCH 06/21] Update clint address
+
+Signed-off-by: Teo Hall <thall@inspiresemi.com>
+---
+ arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+index d36a9e477700..878e8ca7e26c 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+@@ -105,9 +105,9 @@ plic0: plic@60000000 {
+ 			#interrupt-cells = <0x01>;
+ 		};
+ 
+-		clint@2000000 {
++		clint@20000000 {
+ 			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
+-			reg = <0x00 0x2000000 0x00 0x10000>;
++			reg = <0x00 0x20000000 0x00 0x10000>;
+ 			compatible = "sifive,clint0\0riscv,clint0";
+ 		};
+ 	};
+-- 
+2.39.3
+
