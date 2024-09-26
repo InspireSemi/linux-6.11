@@ -1,0 +1,73 @@
+From 8f7d4650538f1a819052b49c3e7be65be5798d76 Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Wed, 18 Sep 2024 14:33:02 -0500
+Subject: [PATCH 02/21] Latest-DTB-changes
+
+patched from linux-yocto
+---
+ .../boot/dts/inspiresemi/inspire_core.dts     | 22 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+index 2581ecbd578d..8d617a467ca3 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+@@ -9,7 +9,8 @@ / {
+ 	chosen {
+ 		linux,initrd-end =   <0x1100 0x00a55DC8>;
+ 		linux,initrd-start = <0x1100 0x00600000>;
+-		bootargs = "earlycon=uart,mmio,0x00A7EE4000000010,115200 console=ttyS0";
++		bootargs = "earlycon=uart,mmio,0x00A7EE4000000010,115200 console=ttyS0 root=/dev/ram0 rw debug initrd=0x110002000000,0xd00000";
++		stdout-path = "/soc/uart@0x00A7EE4000000010";
+ 	};
+ 
+ 	memory@110000000000 {
+@@ -38,14 +39,14 @@ cpu@0 {
+ 			compatible = "riscv";
+ 			riscv,isa = "rv64imafdch_zicsr_zifencei_zba_zbb_zbc_zbs";
+ 			mmu-type = "riscv,sv39";
+-			status = "disabled";
++			status = "okay";
+ 
+ 			cpu0_intc: interrupt-controller {
+ 				#interrupt-cells = <0x01>;
+ 				interrupt-controller;
+ 				compatible = "riscv,cpu-intc";
+ 				phandle = <0x02>;
+-				status = "disabled";
++				status = "okay";
+ 			};
+ 		};
+ 
+@@ -66,7 +67,7 @@ soc {
+ 		compatible = "simple-bus";
+ 		ranges;
+ 
+-		plic@c000000 {
++		plic0: plic@c000000 {
+ 			phandle = <0x03>;
+ 			riscv,ndev = <0x60>;
+ 			reg = <0x00 0xc000000 0x00 0x600000>;
+@@ -79,8 +80,17 @@ plic@c000000 {
+ 
+ 		clint@20006000 {
+ 			interrupts-extended = <&cpu0_intc 0x03 &cpu0_intc 0x07>;
+-			reg = <0x00 0x20006000 0x00 0x1000>;
+-			compatible = "inspire,riscv-timer";
++			reg = <0x00 0x2000000 0x00 0x1000>;
++			compatible = "riscv,clint0";
++		};
++
++		uart0: uart@0x00A7EE4000000010 {
++			compatible = "ns16550a";
++			interrupts = <0x0b>;
++			interrupt-parent = <&plic0>;
++			reg = <0xA7EE40 0x10 0x0 0x100>;
++			clock-frequency = <0x384000>;
++			status = "okay";
+ 		};
+ 	};
+ };
+-- 
+2.39.3
+

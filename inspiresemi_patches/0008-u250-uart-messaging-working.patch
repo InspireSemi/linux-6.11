@@ -1,0 +1,42 @@
+From 8400e0dfdd8d7f4c1993d23d457e3d19ba430c13 Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Thu, 1 Aug 2024 21:20:18 -0500
+Subject: [PATCH 08/21] u250 uart messaging working
+
+---
+ arch/riscv/boot/dts/inspiresemi/inspire_core.dts | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+index 49d5a49feab7..80120b66500a 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+@@ -24,7 +24,7 @@ flash@20000000 {
+ 	};
+ 
+ 	chosen {
+-		bootargs = "earlycon=uart,mmio,0x70010100,115200 debug console=ttyS0";
++		bootargs = "earlycon debug console=ttyS0";
+ 		linux,initrd-end = <0x1100 0x8e8657a>;
+ 		linux,initrd-start = <0x1100 0x8200000>;
+ 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
+@@ -39,7 +39,7 @@ memory@110000000000 {
+ 	cpus {
+ 		#address-cells = <0x01>;
+ 		#size-cells = <0x00>;
+-		timebase-frequency = <0x989680>;
++		timebase-frequency = <12000000>;
+ 
+ 		cpu@0 {
+ 			phandle = <0x01>;
+@@ -81,6 +81,7 @@ serial@70010100 {
+ 			interrupts = <0x0a>;
+ 			interrupt-parent = <0x03>;
+ 			current-speed = <3000000>;
++			clock-frequency = <48000000>;
+ 			reg = <0x00 0x70010100 0x00 0x100>;
+ 			compatible = "ns16550a";
+ 		};
+-- 
+2.39.3
+

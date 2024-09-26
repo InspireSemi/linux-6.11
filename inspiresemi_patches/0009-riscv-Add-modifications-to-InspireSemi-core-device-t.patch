@@ -1,0 +1,110 @@
+From 16a18d4eb34558394e2e1e9f8d8306a5353cfaba Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Thu, 1 Aug 2024 21:21:12 -0500
+Subject: [PATCH 09/21] riscv: Add modifications to InspireSemi core device
+ tree
+
+    Add current changes for default commandline changes
+---
+ arch/riscv/boot/dts/inspiresemi/inspire_core.dts  | 15 ++++++---------
+ .../boot/dts/inspiresemi/inspire_core_qemu.dts    | 10 +++-------
+ 2 files changed, 9 insertions(+), 16 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+index 80120b66500a..187e55b5d35e 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+@@ -24,16 +24,15 @@ flash@20000000 {
+ 	};
+ 
+ 	chosen {
+-		bootargs = "earlycon debug console=ttyS0";
++		bootargs = "debug console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 rodata=off retain_initrd nokaslr";
+ 		linux,initrd-end = <0x1100 0x8e8657a>;
+-		linux,initrd-start = <0x1100 0x8200000>;
++		linux,initrd-start = <0x1100 0x08200000>;
+ 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
+-		stdout-path = "/soc/serial@70010100";
+ 	};
+ 
+ 	memory@110000000000 {
+ 		device_type = "memory";
+-		reg = <0x1100 0x00 0x04 0x00>;
++		reg = <0x1100 0x00 0x0 0x40000000>;
+ 	};
+ 
+ 	cpus {
+@@ -47,9 +46,7 @@ cpu@0 {
+ 			reg = <0x00>;
+ 			status = "okay";
+ 			compatible = "riscv";
+-			riscv,cboz-block-size = <0x40>;
+-			riscv,cbom-block-size = <0x40>;
+-			riscv,isa = "rv64imafdch_zicbom_zicboz_zicsr_zifencei_zihintpause_zawrs_zfa_zca_zcd_zba_zbb_zbc_zbs_sstc_svadu";
++			riscv,isa = "rv64imafdc_zicsr_zifencei";
+ 			mmu-type = "riscv,sv48";
+ 
+ 			intc0: interrupt-controller {
+@@ -78,7 +75,7 @@ soc {
+ 		ranges;
+ 
+ 		serial@70010100 {
+-			interrupts = <0x0a>;
++			interrupts = <0x05>;
+ 			interrupt-parent = <0x03>;
+ 			current-speed = <3000000>;
+ 			clock-frequency = <48000000>;
+@@ -92,7 +89,7 @@ plic0: plic@60000000 {
+ 			reg = <0x00 0x60000000 0x00 0x600000>;
+ 			interrupts-extended = <&intc0 0x0b &intc0 0x09>;
+ 			interrupt-controller;
+-			compatible = "sifive,plic-1.0.0\0riscv,plic0";
++			compatible = "riscv,plic0";
+ 			#address-cells = <0x00>;
+ 			#interrupt-cells = <0x01>;
+ 		};
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+index 878e8ca7e26c..f4c21fc1757a 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+@@ -24,7 +24,7 @@ flash@20000000 {
+ 	};
+ 
+ 	chosen {
+-		bootargs = "earlycon=uart,mmio,0x70010100,115200 debug console=ttyS0";
++		bootargs = "earlycon=uart,mmio,0x70010100,115200 debug console=ttyS0  rodata=off nokaslr";
+ 		linux,initrd-end = <0x1100 0x8e8657a>;
+ 		linux,initrd-start = <0x1100 0x8200000>;
+ 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
+@@ -41,7 +41,7 @@ platform-bus@4000000 {
+ 
+ 	memory@110000000000 {
+ 		device_type = "memory";
+-		reg = <0x1100 0x00 0x04 0x00>;
++		reg = <0x1100 0x00 0x01 0x00>;
+ 	};
+ 
+ 	cpus {
+@@ -55,9 +55,7 @@ cpu@0 {
+ 			reg = <0x00>;
+ 			status = "okay";
+ 			compatible = "riscv";
+-			riscv,cboz-block-size = <0x40>;
+-			riscv,cbom-block-size = <0x40>;
+-			riscv,isa = "rv64imafdch_zicbom_zicboz_zicsr_zifencei_zihintpause_zawrs_zfa_zca_zcd_zba_zbb_zbc_zbs_sstc_svadu";
++			riscv,isa = "rv64imafdc_zicsr_zifencei";
+ 			mmu-type = "riscv,sv48";
+ 
+ 			intc0: interrupt-controller {
+@@ -86,8 +84,6 @@ soc {
+ 		ranges;
+ 
+ 		serial@70010100 {
+-			interrupts = <0x0a>;
+-			interrupt-parent = <0x03>;
+ 			current-speed = <115200>;
+ 			clock-frequency = <0x384000>;
+ 			reg = <0x00 0x70010100 0x00 0x100>;
+-- 
+2.39.3
+

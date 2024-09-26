@@ -1,0 +1,25 @@
+From 841473291ebba4127f9aad88eb14aebbb7867820 Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Thu, 1 Aug 2024 21:24:09 -0500
+Subject: [PATCH 11/21] Set asid_bits = 0
+
+Why is this?
+---
+ arch/riscv/mm/context.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/riscv/mm/context.c b/arch/riscv/mm/context.c
+index 4abe3de23225..fd47a4c7893f 100644
+--- a/arch/riscv/mm/context.c
++++ b/arch/riscv/mm/context.c
+@@ -235,6 +235,7 @@ static int __init asids_init(void)
+ 	asid_bits = (csr_read(CSR_SATP) >> SATP_ASID_SHIFT)  & SATP_ASID_MASK;
+ 	asid_bits = fls_long(asid_bits);
+ 	csr_write(CSR_SATP, old);
++	asid_bits = 0;
+ 
+ 	/*
+ 	 * In the process of determining number of ASID bits (above)
+-- 
+2.39.3
+

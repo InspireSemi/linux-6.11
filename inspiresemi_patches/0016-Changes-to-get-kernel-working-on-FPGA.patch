@@ -1,0 +1,117 @@
+From 0a898aadebf4d6270844416f41c720e209f767cc Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Mon, 19 Aug 2024 12:22:46 -0500
+Subject: [PATCH 16/21] Changes to get kernel working on FPGA
+
+Added option to set HZ = 5, still using 6 as this is most stable and
+highest value at 16Mhz.
+NOTE: Need to test some other values with core = 25Mhz
+
+added clean script to clean kernel build
+
+removed bootarg root=/dev/ram0 not needed
+
+Increased core to 25Mhz
+
+Fixed riscv isa string so it is parsed properly and passed to kernel
+correctly.  NOTE: Do not know if this has any affect, ie if kernel uses
+this string later for anything but it is correct now in boot log
+---
+ arch/riscv/boot/dts/inspiresemi/inspire_core.dts | 6 +++---
+ arch/riscv/kernel/process.c                      | 1 -
+ clean.sh                                         | 1 +
+ drivers/clocksource/timer-riscv.c                | 2 +-
+ kernel/Kconfig.hz                                | 6 ++++++
+ 5 files changed, 11 insertions(+), 5 deletions(-)
+ create mode 100755 clean.sh
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+index c41e26659755..4a0476a5b470 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+@@ -13,7 +13,7 @@ pmu {
+ 
+ 
+ 	chosen {
+-		bootargs = "debug console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 rodata=off root=/dev/ram0 ";
++		bootargs = "debug console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 rodata=off";
+ 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
+ 	};
+ 
+@@ -25,7 +25,7 @@ memory@110000000000 {
+ 	cpus {
+ 		#address-cells = <0x01>;
+ 		#size-cells = <0x00>;
+-		timebase-frequency = <12000000>;
++		timebase-frequency = <25000000>;
+ 
+ 		cpu@0 {
+ 			phandle = <0x01>;
+@@ -33,7 +33,7 @@ cpu@0 {
+ 			reg = <0x00>;
+ 			status = "okay";
+ 			compatible = "riscv";
+-			riscv,isa = "rv64imafdc_zicsr_zifencei";
++			riscv,isa = "rv64imafdcus";
+ 			mmu-type = "riscv,sv48";
+ 
+ 			intc0: interrupt-controller {
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index deb675207504..76b635460a0a 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -37,7 +37,6 @@ extern asmlinkage void ret_from_fork(void);
+ 
+ void noinstr arch_cpu_idle(void)
+ {
+-	pr_warn_ratelimited("idle \r\n");
+ 	cpu_do_idle();
+ }
+ 
+diff --git a/clean.sh b/clean.sh
+new file mode 100755
+index 000000000000..814c3393fae4
+--- /dev/null
++++ b/clean.sh
+@@ -0,0 +1 @@
++make ARCH=riscv CROSS_COMPILE=riscv64-poky-linux- O=../linux_build DEBUG=1 clean
+diff --git a/drivers/clocksource/timer-riscv.c b/drivers/clocksource/timer-riscv.c
+index 0f740d76cc6c..6819ebec04ee 100644
+--- a/drivers/clocksource/timer-riscv.c
++++ b/drivers/clocksource/timer-riscv.c
+@@ -204,7 +204,7 @@ static int __init riscv_timer_init_dt(struct device_node *n)
+ 	unsigned long hartid;
+ 	struct device_node *child;
+ 
+-	pr_warn("riscv timere init device tree \r\n");
++	pr_warn("riscv timer init device tree \r\n");
+ 
+ 	error = riscv_of_processor_hartid(n, &hartid);
+ 	if (error < 0) {
+diff --git a/kernel/Kconfig.hz b/kernel/Kconfig.hz
+index deae5347369d..e3e642d605a7 100644
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -16,6 +16,11 @@ choice
+ 	 environment leading to NR_CPUS * HZ number of timer interrupts
+ 	 per second.
+ 
++
++	config HZ_5
++		bool "5 HZ"
++	help
++	  5 Hz For InspireSemi FPGA
+ 	config HZ_6
+ 		bool "6 HZ"
+ 	help
+@@ -69,6 +74,7 @@ endchoice
+ 
+ config HZ
+ 	int
++	default 5 if HZ_5
+ 	default 6 if HZ_6
+ 	default 12 if HZ_12
+ 	default 25 if HZ_25
+-- 
+2.39.3
+
