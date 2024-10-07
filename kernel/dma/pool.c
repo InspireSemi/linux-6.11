@@ -90,10 +90,16 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
 	do {
 		pool_size = 1 << (PAGE_SHIFT + order);
 		if (cma_in_zone(gfp))
+		{
+			pr_info("MCK**** dma_alloc_from_contiguous\n");
 			page = dma_alloc_from_contiguous(NULL, 1 << order,
 							 order, false);
+		}
 		if (!page)
+		{
+			pr_info("MCK**** alloc_pages %x : %x \n", gfp, order);
 			page = alloc_pages(gfp, order);
+		}
 	} while (!page && order-- > 0);
 	if (!page)
 		goto out;

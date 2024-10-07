@@ -181,7 +181,7 @@ void __init mem_init(void)
 		swiotlb = true;
 	}
 
-	swiotlb_init(swiotlb, SWIOTLB_VERBOSE);
+	swiotlb_init(swiotlb, SWIOTLB_VERBOSE | SWIOTLB_ANY);
 	memblock_free_all();
 
 	print_vm_layout();

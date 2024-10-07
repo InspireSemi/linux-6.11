@@ -235,7 +235,7 @@ static int __init asids_init(void)
 	asid_bits = (csr_read(CSR_SATP) >> SATP_ASID_SHIFT)  & SATP_ASID_MASK;
 	asid_bits = fls_long(asid_bits);
 	csr_write(CSR_SATP, old);
-	asid_bits = 0;
+	//asid_bits = 0;
 
 	/*
 	 * In the process of determining number of ASID bits (above)
