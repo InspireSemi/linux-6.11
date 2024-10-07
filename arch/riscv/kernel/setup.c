@@ -249,6 +249,12 @@ extern void __init init_rt_signal_env(void);
 void __init setup_arch(char **cmdline_p)
 {
 	parse_dtb();
+
+	// Print stvec here
+	unsigned long vector; 
+	vector = csr_read(CSR_STVEC);
+	pr_info("STVEC: %lx\n", vector);
+
 	setup_initial_init_mm(_stext, _etext, _edata, _end);
 
 	*cmdline_p = boot_command_line;
