@@ -1,0 +1,114 @@
+From ec19396e9ad38e8369d2a4da46fe154d974216a1 Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Fri, 9 Aug 2024 08:54:36 -0500
+Subject: [PATCH 13/24] Fixes for mtimer/mtimercmp and new HZ parameters for
+ FPGA
+
+HZ min before was 100 added code to take this down to 6
+
+6 works on FPGA and there are no warning timeouts during boot.
+---
+ .../boot/dts/inspiresemi/inspire_core.dts     |  2 +-
+ arch/riscv/kernel/process.c                   |  2 ++
+ include/linux/jiffies.h                       |  4 +++-
+ include/vdso/jiffies.h                        |  2 +-
+ kernel/Kconfig.hz                             | 23 +++++++++++++++++++
+ 5 files changed, 30 insertions(+), 3 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+index 4a9b6fecba3b..c41e26659755 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+@@ -69,7 +69,7 @@ serial@70010100 {
+ 		};
+ 
+ 		clint@20004000 {
+-			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
++			interrupts-extended = <&intc0 0x05 &intc0 0x07>;
+ 			reg = <0x00 0x20004000 0x00 0x10000>;
+ 			compatible = "inspire,clint0";
+ 		};
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index d5887d9ade7c..deb675207504 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -92,6 +92,8 @@ void __show_regs(struct pt_regs *regs)
+ 
+ 	pr_cont("status: " REG_FMT " badaddr: " REG_FMT " cause: " REG_FMT "\n",
+ 		regs->status, regs->badaddr, regs->cause);
++
++	pr_cont("mie: " REG_FMT " mip: " REG_FMT "\n", csr_read(CSR_IE), csr_read(CSR_IP));
+ }
+ void show_regs(struct pt_regs *regs)
+ {
+diff --git a/include/linux/jiffies.h b/include/linux/jiffies.h
+index d9f1435a5a13..f972a6c4edd3 100644
+--- a/include/linux/jiffies.h
++++ b/include/linux/jiffies.h
+@@ -20,7 +20,9 @@
+  * OSF/1 kernel. The SHIFT_HZ define expresses the same value as the
+  * nearest power of two in order to avoid hardware multiply operations.
+  */
+-#if HZ >= 12 && HZ < 24
++#if HZ >= 1 && HZ < 12
++# define SHIFT_HZ 3
++#elif HZ >= 12 && HZ < 24
+ # define SHIFT_HZ	4
+ #elif HZ >= 24 && HZ < 48
+ # define SHIFT_HZ	5
+diff --git a/include/vdso/jiffies.h b/include/vdso/jiffies.h
+index 2f9d596c8b29..426a58258275 100644
+--- a/include/vdso/jiffies.h
++++ b/include/vdso/jiffies.h
+@@ -6,6 +6,6 @@
+ #include <vdso/time64.h>
+ 
+ /* TICK_NSEC is the time between ticks in nsec assuming SHIFTED_HZ */
+-#define TICK_NSEC ((NSEC_PER_SEC+HZ/2)/HZ)
++#define TICK_NSEC ((NSEC_PER_SEC+HZ/2)/HZ) // 1000000000
+ 
+ #endif /* __VDSO_JIFFIES_H */
+diff --git a/kernel/Kconfig.hz b/kernel/Kconfig.hz
+index 38ef6d06888e..deae5347369d 100644
+--- a/kernel/Kconfig.hz
++++ b/kernel/Kconfig.hz
+@@ -16,6 +16,25 @@ choice
+ 	 environment leading to NR_CPUS * HZ number of timer interrupts
+ 	 per second.
+ 
++	config HZ_6
++		bool "6 HZ"
++	help
++	  6 Hz For InspireSemi FPGA
++
++	config HZ_12
++		bool "12 HZ"
++	help
++	  12 Hz For InspireSemi FPGA
++
++	config HZ_25
++		bool "25 HZ"
++	help
++	  25 Hz For InspireSemi FPGA
++
++	config HZ_50
++		bool "50 HZ"
++	help
++	  50 Hz For InspireSemi FPGA
+ 
+ 	config HZ_100
+ 		bool "100 HZ"
+@@ -50,6 +69,10 @@ endchoice
+ 
+ config HZ
+ 	int
++	default 6 if HZ_6
++	default 12 if HZ_12
++	default 25 if HZ_25
++	default 50 if HZ_50
+ 	default 100 if HZ_100
+ 	default 250 if HZ_250
+ 	default 300 if HZ_300
+-- 
+2.39.3
+

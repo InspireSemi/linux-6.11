@@ -1,0 +1,42 @@
+From a4f08ca565bcbd6bcc96f1df3602e1c62dc3f543 Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Thu, 29 Aug 2024 12:37:18 -0500
+Subject: [PATCH 17/24] moved rootfs overlay away from dtb memory
+
+OpenSBI was using Domain0 Next Arg1 : 0x0000110002200000
+to pass dtb to Linux.  This was overwriting the previous memory
+used to load the rootfs overlay.
+
+Increased memory from x04000_0000 to 0x8000_0000
+---
+ arch/riscv/boot/dts/inspiresemi/inspire_core.dts | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+index 4a0476a5b470..bbf850e9baad 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+@@ -11,15 +11,16 @@ pmu {
+ 		compatible = "riscv,pmu";
+ 	};
+ 
+-
+-	chosen {
++ 	chosen {
+ 		bootargs = "debug console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 rodata=off";
++		linux,initrd-start = <0x1100 0x04000000>;
++		linux,initrd-end = <0x1100 0x04AFED43>;
+ 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
+-	};
++        };
+ 
+ 	memory@110000000000 {
+ 		device_type = "memory";
+-		reg = <0x1100 0x00 0x0 0x40000000>;
++		reg = <0x1100 0x00 0x0 0x80000000>;
+ 	};
+ 
+ 	cpus {
+-- 
+2.39.3
+

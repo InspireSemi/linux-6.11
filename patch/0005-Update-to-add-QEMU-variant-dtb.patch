@@ -1,0 +1,144 @@
+From 32cd56b1389c1158fbeee7a3313446e3c942af57 Mon Sep 17 00:00:00 2001
+From: Teo Hall <thall@inspiresemi.com>
+Date: Fri, 1 Mar 2024 23:43:31 -0600
+Subject: [PATCH 05/24] Update to add QEMU variant dtb
+
+Signed-off-by: Teo Hall <thall@inspiresemi.com>
+---
+ arch/riscv/boot/dts/inspiresemi/Makefile      |   2 +-
+ .../dts/inspiresemi/inspire_core_qemu.dts     | 114 ++++++++++++++++++
+ 2 files changed, 115 insertions(+), 1 deletion(-)
+ create mode 100644 arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/Makefile b/arch/riscv/boot/dts/inspiresemi/Makefile
+index 43303a4faa6b..30b6c1a5a0b7 100644
+--- a/arch/riscv/boot/dts/inspiresemi/Makefile
++++ b/arch/riscv/boot/dts/inspiresemi/Makefile
+@@ -1,3 +1,3 @@
+ # SPDX-License-Identifier: GPL-2.0
+-dtb-$(CONFIG_SOC_SIFIVE) += inspire_core.dtb 
++dtb-$(CONFIG_SOC_SIFIVE) += inspire_core.dtb inspire_core_qemu.dtb
+ obj-$(CONFIG_BUILTIN_DTB) += $(addsuffix .o, $(dtb-y))
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+new file mode 100644
+index 000000000000..d36a9e477700
+--- /dev/null
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+@@ -0,0 +1,114 @@
++/dts-v1/;
++
++/ {
++	#address-cells = <0x02>;
++	#size-cells = <0x02>;
++	compatible = "inspire,thunderbird-qemu", "inspire,thunderbird";
++	model = "Inspire Semiconductor Thunderbird FPGA";
++
++	pmu {
++		riscv,event-to-mhpmcounters = <0x01 0x01 0x7fff9 0x02 0x02 0x7fffc 0x10019 0x10019 0x7fff8 0x1001b 0x1001b 0x7fff8 0x10021 0x10021 0x7fff8>;
++		compatible = "riscv,pmu";
++	};
++
++	fw-cfg@10100000 {
++		dma-coherent;
++		reg = <0x00 0x10100000 0x00 0x18>;
++		compatible = "qemu,fw-cfg-mmio";
++	};
++
++	flash@20000000 {
++		bank-width = <0x04>;
++		reg = <0x00 0x20000000 0x00 0x2000000 0x00 0x22000000 0x00 0x2000000>;
++		compatible = "cfi-flash";
++	};
++
++	chosen {
++		bootargs = "earlycon=uart,mmio,0x70010100,115200 debug console=ttyS0";
++		linux,initrd-end = <0x1100 0x8e8657a>;
++		linux,initrd-start = <0x1100 0x8200000>;
++		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
++		stdout-path = "/soc/serial@70010100";
++	};
++
++		platform-bus@4000000 {
++		interrupt-parent = <0x03>;
++		ranges = <0x00 0x00 0x4000000 0x2000000>;
++		#address-cells = <0x01>;
++		#size-cells = <0x01>;
++		compatible = "qemu,platform\0simple-bus";
++	};
++
++	memory@110000000000 {
++		device_type = "memory";
++		reg = <0x1100 0x00 0x04 0x00>;
++	};
++
++	cpus {
++		#address-cells = <0x01>;
++		#size-cells = <0x00>;
++		timebase-frequency = <0x989680>;
++
++		cpu@0 {
++			phandle = <0x01>;
++			device_type = "cpu";
++			reg = <0x00>;
++			status = "okay";
++			compatible = "riscv";
++			riscv,cboz-block-size = <0x40>;
++			riscv,cbom-block-size = <0x40>;
++			riscv,isa = "rv64imafdch_zicbom_zicboz_zicsr_zifencei_zihintpause_zawrs_zfa_zca_zcd_zba_zbb_zbc_zbs_sstc_svadu";
++			mmu-type = "riscv,sv48";
++
++			intc0: interrupt-controller {
++				#interrupt-cells = <0x01>;
++				interrupt-controller;
++				compatible = "riscv,cpu-intc";
++				phandle = <0x02>;
++			};
++		};
++
++		cpu-map {
++
++			cluster0 {
++
++				core0 {
++					cpu = <0x01>;
++				};
++			};
++		};
++	};
++
++	soc {
++		#address-cells = <0x02>;
++		#size-cells = <0x02>;
++		compatible = "simple-bus";
++		ranges;
++
++		serial@70010100 {
++			interrupts = <0x0a>;
++			interrupt-parent = <0x03>;
++			current-speed = <115200>;
++			clock-frequency = <0x384000>;
++			reg = <0x00 0x70010100 0x00 0x100>;
++			compatible = "ns16550a";
++		};
++
++		plic0: plic@60000000 {
++			phandle = <0x03>;
++			riscv,ndev = <0x5f>;
++			reg = <0x00 0x60000000 0x00 0x600000>;
++			interrupts-extended = <&intc0 0x0b &intc0 0x09>;
++			interrupt-controller;
++			compatible = "sifive,plic-1.0.0\0riscv,plic0";
++			#address-cells = <0x00>;
++			#interrupt-cells = <0x01>;
++		};
++
++		clint@2000000 {
++			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
++			reg = <0x00 0x2000000 0x00 0x10000>;
++			compatible = "sifive,clint0\0riscv,clint0";
++		};
++	};
++};
+-- 
+2.39.3
+

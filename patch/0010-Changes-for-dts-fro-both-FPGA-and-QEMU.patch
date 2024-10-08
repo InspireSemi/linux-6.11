@@ -1,0 +1,108 @@
+From c0cea50bfcfe360a0f5a8ecf077ec2c4d5ba2a52 Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Thu, 1 Aug 2024 21:23:22 -0500
+Subject: [PATCH 10/24] Changes for dts fro both FPGA and QEMU
+
+removed plic
+
+Went to a builtin initramfs
+---
+ .../boot/dts/inspiresemi/inspire_core.dts     | 28 +------------------
+ .../dts/inspiresemi/inspire_core_qemu.dts     | 17 ++---------
+ 2 files changed, 3 insertions(+), 42 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+index 187e55b5d35e..4a9b6fecba3b 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core.dts
+@@ -11,22 +11,9 @@ pmu {
+ 		compatible = "riscv,pmu";
+ 	};
+ 
+-	fw-cfg@10100000 {
+-		dma-coherent;
+-		reg = <0x00 0x10100000 0x00 0x18>;
+-		compatible = "qemu,fw-cfg-mmio";
+-	};
+-
+-	flash@20000000 {
+-		bank-width = <0x04>;
+-		reg = <0x00 0x20000000 0x00 0x2000000 0x00 0x22000000 0x00 0x2000000>;
+-		compatible = "cfi-flash";
+-	};
+ 
+ 	chosen {
+-		bootargs = "debug console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 rodata=off retain_initrd nokaslr";
+-		linux,initrd-end = <0x1100 0x8e8657a>;
+-		linux,initrd-start = <0x1100 0x08200000>;
++		bootargs = "debug console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 rodata=off root=/dev/ram0 ";
+ 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
+ 	};
+ 
+@@ -75,25 +62,12 @@ soc {
+ 		ranges;
+ 
+ 		serial@70010100 {
+-			interrupts = <0x05>;
+-			interrupt-parent = <0x03>;
+ 			current-speed = <3000000>;
+ 			clock-frequency = <48000000>;
+ 			reg = <0x00 0x70010100 0x00 0x100>;
+ 			compatible = "ns16550a";
+ 		};
+ 
+-		plic0: plic@60000000 {
+-			phandle = <0x03>;
+-			riscv,ndev = <0x5f>;
+-			reg = <0x00 0x60000000 0x00 0x600000>;
+-			interrupts-extended = <&intc0 0x0b &intc0 0x09>;
+-			interrupt-controller;
+-			compatible = "riscv,plic0";
+-			#address-cells = <0x00>;
+-			#interrupt-cells = <0x01>;
+-		};
+-
+ 		clint@20004000 {
+ 			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
+ 			reg = <0x00 0x20004000 0x00 0x10000>;
+diff --git a/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts b/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+index f4c21fc1757a..ec365cf6b422 100644
+--- a/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
++++ b/arch/riscv/boot/dts/inspiresemi/inspire_core_qemu.dts
+@@ -24,9 +24,7 @@ flash@20000000 {
+ 	};
+ 
+ 	chosen {
+-		bootargs = "earlycon=uart,mmio,0x70010100,115200 debug console=ttyS0  rodata=off nokaslr";
+-		linux,initrd-end = <0x1100 0x8e8657a>;
+-		linux,initrd-start = <0x1100 0x8200000>;
++		bootargs = "console=uart,mmio,0x70010100 earlycon=uart,mmio,0x70010100 debug  rodata=off root=/dev/ram0";
+ 		rng-seed = <0x4fe9397d 0xb7883060 0xe56ff3c2 0xb05b4e3 0x62e5479c 0xd932a9c8 0x95a47b5b 0x192ef245>;
+ 		stdout-path = "/soc/serial@70010100";
+ 	};
+@@ -90,21 +88,10 @@ serial@70010100 {
+ 			compatible = "ns16550a";
+ 		};
+ 
+-		plic0: plic@60000000 {
+-			phandle = <0x03>;
+-			riscv,ndev = <0x5f>;
+-			reg = <0x00 0x60000000 0x00 0x600000>;
+-			interrupts-extended = <&intc0 0x0b &intc0 0x09>;
+-			interrupt-controller;
+-			compatible = "sifive,plic-1.0.0\0riscv,plic0";
+-			#address-cells = <0x00>;
+-			#interrupt-cells = <0x01>;
+-		};
+-
+ 		clint@20000000 {
+ 			interrupts-extended = <&intc0 0x03 &intc0 0x07>;
+ 			reg = <0x00 0x20000000 0x00 0x10000>;
+-			compatible = "sifive,clint0\0riscv,clint0";
++			compatible = "sifive,clint0", "riscv,clint0";
+ 		};
+ 	};
+ };
+-- 
+2.39.3
+

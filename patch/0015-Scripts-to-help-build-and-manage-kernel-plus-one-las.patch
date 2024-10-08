@@ -1,0 +1,64 @@
+From fa65ec4ad32abb0ff668d6948043812c27f5c444 Mon Sep 17 00:00:00 2001
+From: Marc Karasek <mkarasek@inspiresemi.com>
+Date: Fri, 9 Aug 2024 11:17:41 -0500
+Subject: [PATCH 15/24] Scripts to help build and manage kernel plus one last
+ jiffies change
+
+---
+ build.sh                | 1 +
+ defconfig.sh            | 1 +
+ include/linux/jiffies.h | 4 +++-
+ menu.sh                 | 1 +
+ saveconfig.sh           | 1 +
+ 5 files changed, 7 insertions(+), 1 deletion(-)
+ create mode 100755 build.sh
+ create mode 100755 defconfig.sh
+ create mode 100755 menu.sh
+ create mode 100755 saveconfig.sh
+
+diff --git a/build.sh b/build.sh
+new file mode 100755
+index 000000000000..8e1dbe14c082
+--- /dev/null
++++ b/build.sh
+@@ -0,0 +1 @@
++make ARCH=riscv CROSS_COMPILE=riscv64-poky-linux- O=../linux_build DEBUG=1 -j16
+diff --git a/defconfig.sh b/defconfig.sh
+new file mode 100755
+index 000000000000..9f2fd30b7362
+--- /dev/null
++++ b/defconfig.sh
+@@ -0,0 +1 @@
++make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- O=../linux_build DEBUG=1 $1
+diff --git a/include/linux/jiffies.h b/include/linux/jiffies.h
+index f972a6c4edd3..94d6a1515dc8 100644
+--- a/include/linux/jiffies.h
++++ b/include/linux/jiffies.h
+@@ -20,7 +20,9 @@
+  * OSF/1 kernel. The SHIFT_HZ define expresses the same value as the
+  * nearest power of two in order to avoid hardware multiply operations.
+  */
+-#if HZ >= 1 && HZ < 12
+++#if HZ >= 3 && HZ < 6
+++#define SHIFT_HZ 3
+++#elif HZ >= 6 && HZ < 12
+ # define SHIFT_HZ 3
+ #elif HZ >= 12 && HZ < 24
+ # define SHIFT_HZ	4
+diff --git a/menu.sh b/menu.sh
+new file mode 100755
+index 000000000000..b0579bee320d
+--- /dev/null
++++ b/menu.sh
+@@ -0,0 +1 @@
++make ARCH=riscv CROSS_COMPILE=riscv64-poky-linux- O=../linux_build DEBUG=1 menuconfig
+diff --git a/saveconfig.sh b/saveconfig.sh
+new file mode 100755
+index 000000000000..74584ccd52c7
+--- /dev/null
++++ b/saveconfig.sh
+@@ -0,0 +1 @@
++make ARCH=riscv CROSS_COMPILE=riscv64-poky-linux- O=../linux_build savedefconfig
+-- 
+2.39.3
+
